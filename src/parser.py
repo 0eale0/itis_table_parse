@@ -57,10 +57,8 @@ def get_points(credentials, dict_with_points, spreadsheet_id, range_name, rows_t
         return err
 
 
-def get_points_from_du_and_itis_requests(credentials) -> dict:
+def get_points_from_configs(credentials, configs: list) -> dict:
     dict_with_points = {}
-
-    configs = (VillageConfig, ItisRequestConfig)
 
     for config in configs:
         spreadsheet_id = config.SPREADSHEET_ID

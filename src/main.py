@@ -1,10 +1,12 @@
-from parser import get_credentials, get_points_from_du_and_itis_requests
+from parser import get_credentials, get_points_from_configs
+from config import VillageConfig, ItisRequestConfig
 
 
 def main():
     credentials = get_credentials()
+    configs = [VillageConfig, ItisRequestConfig]
 
-    dict_with_points = get_points_from_du_and_itis_requests(credentials)
+    dict_with_points = get_points_from_configs(credentials, configs)
 
     for item in dict_with_points.items():
         print(item)
