@@ -38,6 +38,8 @@ def get_points(credentials, dict_with_points, spreadsheet_id, range_name, rows_t
         row_for_name = rows_to_parse["key"]
         row_for_points = rows_to_parse["item"]
 
+        print(values)
+
         for row in values:
             name = row[row_for_name]
             points = float(row[row_for_points].replace(",", "."))
