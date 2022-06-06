@@ -50,7 +50,6 @@ def new_get_points(config):
 
 def get_dict_with_students_from_configs(configs):
     list_with_students_dicts = []
-    configs = [VillageConfig, ItisRequestConfig]
     for config in configs:
         info_from_config = new_get_points(config)
 
@@ -58,6 +57,7 @@ def get_dict_with_students_from_configs(configs):
             list_with_students_dicts += info
 
     dict_with_students = {}
+    print(list_with_students_dicts)
     for student_dict in list_with_students_dicts:
         if student_dict["key"] not in dict_with_students.keys():
             dict_with_students[student_dict["key"]] = Student(student_dict)
@@ -67,15 +67,17 @@ def get_dict_with_students_from_configs(configs):
     return dict_with_students
 
 
-def write_points_into_table(credentials) -> None:
+def write_points_into_table(credentials, dict_with_students) -> None:
     pass
 
 
 def main():
-    a = (new_get_points(VillageConfig))
-    b = new_get_points(ItisRequestConfig)
-    print(list(a))
-    print(list(b))
+    configs = [VillageConfig, ItisRequestConfig]
+
+    dict_with_students = get_dict_with_students_from_configs(configs)
+
+    for student in dict_with_students.values():
+        print(student)
 
 
 if __name__ == "__main__":

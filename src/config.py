@@ -16,7 +16,7 @@ class VillageConfig:
 
     SPREADSHEET_ID = "10AcN0Ygof1TLxuMlBXPK9m-I6vVxpqB5AulkEgw0mBc"
 
-    DICT_WITH_PAGES_AND_ROWS_TO_PARSE = {"Мероприятия": {"range": "A2:C", "rows": {"room": 0, "key": 1, "points": 2}}}
+    DICT_WITH_PAGES_AND_ROWS_TO_PARSE = {"Мероприятия": {"range": "A2:C", "rows": {"du_room": 0, "key": 1, "points": 2}}}
 
 
 class ItisRequestConfig:

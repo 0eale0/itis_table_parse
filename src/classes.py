@@ -1,7 +1,3 @@
-from parser import new_get_points
-from config import VillageConfig, ItisRequestConfig
-
-
 class Student:
     def __init__(self, dict_with_student):
         """Class can be created only with necessarily_kwargs"""
@@ -35,8 +31,12 @@ class Student:
 
 
 def main():
-    pass
+    student_dict = {'room': '102', 'key': 'Хайбулов Айдар Маратович', 'points': '0', 'dormitory': 'Du_village'}
+    student_dict_2 = {'room': '102', 'key': 'Хайбулов Айдар Маратович', 'points': '0', 'dormitory': 'Du_village'}
+
+    student = Student(student_dict)
+    student.add_info_from_another_table(student_dict_2)
 
 
 if __name__ == '__main__':
-    main()
+    pass
