@@ -1,88 +1,53 @@
-from __future__ import print_function
-
-import os.path
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-from config import SCOPES, CREDENTIALS, VillageConfig, ItisRequestConfig
+from config import GC
+from classes import Student
 
 
-def get_credentials():
-    credentials = None
-    if os.path.exists("token.json"):
-        credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
-    if not credentials or not credentials.valid:
-        if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_config(CREDENTIALS, SCOPES)
-            credentials = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(credentials.to_json())
+def get_points_from_config(config) -> dict:
+    gsheet = GC.open_by_key(config.SPREADSHEET_ID)
+    for page, dict_with_rows_and_range in config.DICT_WITH_PAGES_AND_ROWS_TO_PARSE.items():
 
-    return credentials
+        current_page = gsheet.worksheet(page)
+        lists_with_values = current_page.get(dict_with_rows_and_range["range"])
 
+        result = []
 
-def get_points(credentials, dict_with_points, spreadsheet_id, range_name, rows_to_parse, dormitory=""):
-    try:
-        service = build("sheets", "v4", credentials=credentials)
+        for list_with_value in lists_with_values:
+            keys = list(dict_with_rows_and_range["rows"].keys())
+            dict_with_student = {keys[i]: list_with_value[i]
+                                 for i in range(len(list_with_value))}
 
-        sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=spreadsheet_id, range=range_name).execute()
-        values = result.get("values", [])
+            dict_with_student["dormitory"] = config.DORMITORY
+            result.append(dict_with_student)
 
-        row_for_name = rows_to_parse["key"]
-        row_for_points = rows_to_parse["item"]
-
-        for row in values:
-            name = row[row_for_name]
-            points = float(row[row_for_points].replace(",", "."))
-
-            if name:
-                if name not in dict_with_points.keys():
-                    dict_with_points[name] = {"points": 0, "dormitory": ""}
-
-                dict_with_points[name]["points"] += points
-
-                if dormitory:
-                    dict_with_points[name]["dormitory"] = dormitory
-
-        return dict_with_points
-    except HttpError as err:
-        print(err)
-        return err
+        yield result
 
 
-def get_points_from_configs(credentials, configs: list) -> dict:
-    dict_with_points = {}
-
+def get_dict_with_students_from_configs(configs: list) -> dict:
+    list_with_students_dicts = []
     for config in configs:
-        spreadsheet_id = config.SPREADSHEET_ID
-        dict_with_ranges_and_rows_to_parse = config.DICT_WITH_RANGES_AND_ROWS_TO_PARSE
-        dormitory = config.DORMITORY
+        info_from_config = get_points_from_config(config)
 
-        for range_name in dict_with_ranges_and_rows_to_parse.keys():
-            rows_to_parse = dict_with_ranges_and_rows_to_parse[range_name]
+        for info in info_from_config:
+            list_with_students_dicts += info
 
-            dict_with_points = get_points(credentials, dict_with_points, spreadsheet_id,
-                                          range_name, rows_to_parse, dormitory)
+    dict_with_students = {}
+    for student_dict in list_with_students_dicts:
+        if student_dict["key"] not in dict_with_students.keys():
+            dict_with_students[student_dict["key"]] = Student(student_dict)
+        else:
+            dict_with_students[student_dict["key"]].add_info_from_another_table(student_dict)
 
-    sorted_dict_with_points = {k: v for k, v in sorted(dict_with_points.items(),
-                                                       key=lambda item: item[1]["points"], reverse=True)}
-    return sorted_dict_with_points
-
-
-def write_points_into_table(credentials) -> None:
-    pass
+    return dict_with_students
 
 
-def main():
-    pass
+def write_points_into_table(config, dict_with_points: dict) -> None:
+    lst_to_write = [[*dict_with_points[student].__dict__.values()]
+                    for student in dict_with_points]
 
+    gsheet = GC.open_by_key(config.SPREADSHEET_ID)
+    wsheet = gsheet.worksheet(config.SHEET_NAME)
 
-if __name__ == "__main__":
-    main()
+    write_from = "A1"
+    write_to = chr(64 + len(lst_to_write[0])) + str(len(lst_to_write))
+
+    wsheet.update(f'{write_from}:{write_to}', lst_to_write)

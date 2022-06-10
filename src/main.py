@@ -1,15 +1,13 @@
-from parser import get_credentials, get_points_from_configs
-from config import VillageConfig, ItisRequestConfig
+from config import ItisRequestConfig, VillageConfig, ConfigToWrite
+from parser import get_dict_with_students_from_configs, write_points_into_table
 
 
 def main():
-    credentials = get_credentials()
     configs = [VillageConfig, ItisRequestConfig]
 
-    dict_with_points = get_points_from_configs(credentials, configs)
+    dict_with_students = get_dict_with_students_from_configs(configs)
 
-    for item in dict_with_points.items():
-        print(item)
+    write_points_into_table(ConfigToWrite, dict_with_students)
 
 
 if __name__ == "__main__":
