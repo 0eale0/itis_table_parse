@@ -1,8 +1,15 @@
+from config import NECESSARILY_KWARGS_FOR_STUDENT, DEFAULT_KEYS_FOR_STUDENT
+
+
 class Student:
     def __init__(self, dict_with_student):
         """Class can be created only with necessarily_kwargs"""
 
-        necessarily_kwargs = ["key", "points"]
+        necessarily_kwargs = NECESSARILY_KWARGS_FOR_STUDENT
+        default_keys = DEFAULT_KEYS_FOR_STUDENT
+
+        for default_key in default_keys:
+            setattr(self, default_key, "")
 
         for k, v in dict_with_student.items():
             setattr(self, k, v)
@@ -28,15 +35,3 @@ class Student:
 
     def __str__(self):
         return str(self.__dict__)
-
-
-def main():
-    student_dict = {'room': '102', 'key': 'Хайбулов Айдар Маратович', 'points': '0', 'dormitory': 'Du_village'}
-    student_dict_2 = {'room': '102', 'key': 'Хайбулов Айдар Маратович', 'points': '0', 'dormitory': 'Du_village'}
-
-    student = Student(student_dict)
-    student.add_info_from_another_table(student_dict_2)
-
-
-if __name__ == '__main__':
-    pass
